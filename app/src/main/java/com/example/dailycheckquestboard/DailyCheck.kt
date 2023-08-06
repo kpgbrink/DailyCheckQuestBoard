@@ -10,7 +10,7 @@ import java.util.Date
 )
 data class DailyCheck(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val date: Date,
+    val date: Date? = null,
     val work: Boolean,
     val social: Boolean,
     val physical: Boolean

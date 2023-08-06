@@ -22,7 +22,10 @@ import com.example.dailycheckquestboard.ui.theme.DailyCheckQuestBoardTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    state: DailyCheckState,
+    onEvent: (DailyCheckEvent) -> Unit
+) {
     val navController = rememberNavController()
     //Instead of backStackEntry
     var selectedItem by remember { mutableStateOf(0) }
@@ -54,7 +57,11 @@ fun MainScreen() {
         }
     ) { contentPadding ->
         Box(modifier = Modifier.padding(contentPadding)) {
-            BottomNavGraph(navController = navController)
+            BottomNavGraph(
+                navController = navController,
+                state = state,
+                onEvent = onEvent
+            )
         }
     }
 }
@@ -64,7 +71,7 @@ fun MainScreen() {
 @Composable
 fun MainScreenPreview() {
     DailyCheckQuestBoardTheme {
-        MainScreen()
+//        MainScreen()
     }
 }
 
