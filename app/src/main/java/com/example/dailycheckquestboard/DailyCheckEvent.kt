@@ -1,16 +1,9 @@
 package com.example.dailycheckquestboard
 
+import java.time.LocalDate
+
 sealed interface DailyCheckEvent {
-    object SaveDailyCheck : DailyCheckEvent
-    data class SetWork(val work: Boolean) : DailyCheckEvent
-    data class SetSocial(val social: Boolean) : DailyCheckEvent
-    data class SetPhysical(val physical: Boolean) : DailyCheckEvent
-
-    object ShowDialog : DailyCheckEvent
-
-    object HideDialog : DailyCheckEvent
-
-    data class SortDailyChecks(val sortType: SortType) : DailyCheckEvent
-
-    data class DeleteDailyCheck(val dailyCheck: DailyCheck) : DailyCheckEvent
+    data class UpsertWork(val localDate: LocalDate, val work: Boolean) : DailyCheckEvent
+    data class UpsertPhysical(val localDate: LocalDate, val social: Boolean) : DailyCheckEvent
+    data class UpsertSocial(val localDate: LocalDate, val physical: Boolean) : DailyCheckEvent
 }

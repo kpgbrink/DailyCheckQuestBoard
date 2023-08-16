@@ -2,112 +2,73 @@ package com.example.dailycheckquestboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.Date
 
 class DailyCheckViewModel(
     private val dao: DailyCheckDao
 ) : ViewModel() {
-    private val _sortType = MutableStateFlow(SortType.DATE)
-    private val _dailyChecks = _sortType
-        .flatMapLatest { sortType ->
-            when (sortType) {
-                SortType.DATE -> dao.getDailyCheckOrderedByDate()
-            }
-        }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val _dailyChecks = dao.getDailyCheckOrderedByDate()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     private val _state = MutableStateFlow(DailyCheckState())
 
-    val state = combine(_state, _sortType, _dailyChecks) { state, sortType, dailyChecks ->
+    val state = combine(_state, _dailyChecks) { state, dailyChecks ->
         state.copy(
             dailyChecks = dailyChecks,
-            sortType = sortType
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DailyCheckState())
 
     fun onEvent(event: DailyCheckEvent) {
         when (event) {
-            is DailyCheckEvent.DeleteDailyCheck -> {
-                viewModelScope.launch {
-                    dao.deleteDailyCheck(event.dailyCheck)
-                }
-            }
-
-            DailyCheckEvent.HideDialog -> {
-                _state.update {
-                    it.copy(
-                        isAddingDailyCheck = false
-                    )
-                }
-            }
-
-            DailyCheckEvent.SaveDailyCheck -> {
-                val date = Date()
-                val physical = state.value.physical
-                val work = state.value.work
-                val social = state.value.social
-
-                val dailyCheck = DailyCheck(
-                    date = date,
-                    physical = physical,
-                    work = work,
-                    social = social,
-                )
-                viewModelScope.launch {
-                    dao.upsertDailyCheck(dailyCheck)
-                }
-
-                _state.update {
-                    it.copy(
-                        isAddingDailyCheck = false,
+            is DailyCheckEvent.UpsertWork -> {
+                val existingCheck = _dailyChecks.value.find { it.localDate == event.localDate }
+                val updatedCheck = existingCheck?.copy(work = event.work)
+                    ?: DailyCheck(
+                        localDate = event.localDate,
+                        work = event.work,
                         physical = false,
+                        social = false
+                    )
+
+                viewModelScope.launch {
+                    dao.upsertDailyCheck(updatedCheck)
+                }
+            }
+
+            is DailyCheckEvent.UpsertPhysical -> {
+                val existingCheck = _dailyChecks.value.find { it.localDate == event.localDate }
+                val updatedCheck = existingCheck?.copy(physical = event.social)
+                    ?: DailyCheck(
+                        localDate = event.localDate,
                         work = false,
-                        social = false,
+                        physical = event.social,
+                        social = false
                     )
+
+                viewModelScope.launch {
+                    dao.upsertDailyCheck(updatedCheck)
                 }
             }
 
-            is DailyCheckEvent.SetPhysical -> {
-                _state.update {
-                    it.copy(
-                        physical = event.physical
+            is DailyCheckEvent.UpsertSocial -> {
+                val existingCheck = _dailyChecks.value.find { it.localDate == event.localDate }
+                val updatedCheck = existingCheck?.copy(social = event.physical)
+                    ?: DailyCheck(
+                        localDate = event.localDate,
+                        work = false,
+                        physical = false,
+                        social = event.physical
                     )
-                }
-            }
 
-            is DailyCheckEvent.SetSocial -> {
-                _state.update {
-                    it.copy(
-                        social = event.social
-                    )
+                viewModelScope.launch {
+                    dao.upsertDailyCheck(updatedCheck)
                 }
-            }
-
-            is DailyCheckEvent.SetWork -> {
-                _state.update {
-                    it.copy(
-                        work = event.work
-                    )
-                }
-            }
-
-            DailyCheckEvent.ShowDialog -> {
-                _state.update {
-                    it.copy(
-                        isAddingDailyCheck = true
-                    )
-                }
-            }
-
-            is DailyCheckEvent.SortDailyChecks -> {
-                _sortType.value = event.sortType
             }
         }
     }

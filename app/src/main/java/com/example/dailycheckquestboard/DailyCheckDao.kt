@@ -18,6 +18,6 @@ interface DailyCheckDao {
     @Delete
     suspend fun deleteDailyCheck(dailyCheck: DailyCheck)
 
-    @Query("SELECT * FROM DailyCheck ORDER BY date ASC")
+    @Query("SELECT * FROM DailyCheck ORDER BY localDate ASC")
     fun getDailyCheckOrderedByDate(): Flow<List<DailyCheck>>
 }

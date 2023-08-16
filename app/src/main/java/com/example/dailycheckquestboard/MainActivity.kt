@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
             applicationContext,
             DailyCheckDatabase::class.java,
             "dailyChecks.db"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     private val viewModel by viewModels<DailyCheckViewModel>(
