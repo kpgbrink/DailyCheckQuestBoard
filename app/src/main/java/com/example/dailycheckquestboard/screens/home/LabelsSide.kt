@@ -36,6 +36,7 @@ fun LabelsSide(
         Text(
             text = "Work",
             color = Color.Blue,
+            fontSize = 14.sp,
             modifier = Modifier.height(height)
         )
 
@@ -44,7 +45,7 @@ fun LabelsSide(
         Text(
             text = "Physical",
             color = Color.Green,
-            fontSize = 12.sp,
+            fontSize = 11.sp,
             modifier = Modifier.height(height)
         )
 
@@ -53,6 +54,7 @@ fun LabelsSide(
         Text(
             text = "Social",
             color = Color.Red,
+            fontSize = 13.sp,
             modifier = Modifier.height(height)
         )
     }
