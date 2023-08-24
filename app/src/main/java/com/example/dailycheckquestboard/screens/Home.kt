@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -47,88 +45,108 @@ fun HomeScreen(
     val shadowGrey = Color(0xFFD3D3D3)  // You can adjust the color as needed
 
 
-    Scaffold { paddingValues ->
-        Column(modifier = Modifier.fillMaxSize()) {  // Added this
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 0.dp)
+    ) {  // Added this
 
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(paddingCol)
-                    .padding(paddingValues)
-                    .background(shadowGrey),  // Add the background modifier
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-
-            ) {
-                LabelsSide(spacing, paddingCol, height, Modifier.weight(1f))
-                for (i in 0..6) {
-                    val date = firstDayOfLastWeek.plusDays(i.toLong())
-                    val dailyCheck = state.dailyChecks.find { it.localDate == date }
-                    EditDailyCheck(
-                        date = date,
-                        dailyCheck = dailyCheck,
-                        onEvent = onEvent,
-                        spacing = spacing,
-                        paddingCol = paddingCol,
-                        height = height,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = paddingCol, vertical = 0.dp)
+                .background(shadowGrey),  // Apply the background modifier
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            LabelsSide(spacing, paddingCol, height, Modifier.weight(1f))
+            for (i in 0..6) {
+                val date = firstDayOfLastWeek.plusDays(i.toLong())
+                val dailyCheck = state.dailyChecks.find { it.localDate == date }
+                // Calculate background color
+                val columnBackground = if (i % 2 == 0) Color.DarkGray else Color.Gray
+                EditDailyCheck(
+                    date = date,
+                    dailyCheck = dailyCheck,
+                    onEvent = onEvent,
+                    spacing = spacing,
+                    paddingCol = paddingCol,
+                    height = height,
+                    backgroundColor = columnBackground,
+                    modifier = Modifier.weight(1f)
+                )
             }
-            Divider(modifier = Modifier)  // Adjust the padding as needed
-
-            // Row showing the days of the week
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(paddingCol)
-                    .padding(paddingValues),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Empty space for alignment purposes (assuming LabelsSide doesn't display a day)
-                Box(modifier = Modifier.weight(1f))
-
-                // Loop through the days of the week starting from Monday
-                for (i in 1..7) {
-                    val dayOfWeek = DayOfWeek.of(i)
-                    Text(
-                        text = dayOfWeek.name.take(3),  // Displaying the first three letters of each day
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-            Divider(modifier = Modifier.padding(vertical = spacing / 9))  // Adjust the padding as needed
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(paddingCol)
-                    .padding(paddingValues),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                LabelsSide(spacing, paddingCol, height, Modifier.weight(1f))
-                for (i in 0..6) {
-                    val date = firstDayOfWeek.plusDays(i.toLong())
-                    val dailyCheck = state.dailyChecks.find { it.localDate == date }
-
-                    EditDailyCheck(
-                        date = date,
-                        dailyCheck = dailyCheck,
-                        onEvent = onEvent,
-                        spacing = spacing,
-                        paddingCol = paddingCol,
-                        height = height,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-            Divider(modifier = Modifier.padding(vertical = spacing / 9))  // Adjust the padding as needed
-
         }
+        Divider()  // No padding for the divider
+
+        // Row showing the days of the week
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(paddingCol, bottom = 0.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Empty space for alignment purposes (assuming LabelsSide doesn't display a day)
+            Box(modifier = Modifier.weight(1f))
+
+            // Loop through the days of the week starting from Monday
+            for (i in 1..7) {
+                val dayOfWeek = DayOfWeek.of(i)
+                val currentDayDate = firstDayOfWeek.plusDays((i-1).toLong())  // derive the date for the current dayOfWeek
+                val today = LocalDate.now()
+
+                // Calculate background color
+                val columnBackground = when {
+                    currentDayDate == today -> Color.Yellow  // Change this to the desired color for "today"
+                    i % 2 == 1 -> Color.LightGray
+                    else -> Color.White
+                }
+
+                Text(
+                    text = dayOfWeek.name.take(3),  // Displaying the first three letters of each day
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(columnBackground)
+                )
+            }
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(paddingCol, top = 0.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            LabelsSide(spacing, paddingCol, height, Modifier.weight(1f))
+            for (i in 0..6) {
+                val date = firstDayOfWeek.plusDays(i.toLong())
+                val dailyCheck = state.dailyChecks.find { it.localDate == date }
+                // Get the current date
+                val today = LocalDate.now()
+                // Calculate background color
+                val columnBackground = when {
+                    date == today -> Color.Yellow  // Change this to the desired color for "today"
+                    i % 2 == 0 -> Color.LightGray
+                    else -> Color.White
+                }
+                // If it is today make it a certain background color
+
+                EditDailyCheck(
+                    date = date,
+                    dailyCheck = dailyCheck,
+                    onEvent = onEvent,
+                    spacing = spacing,
+                    paddingCol = paddingCol,
+                    height = height,
+                    backgroundColor = columnBackground,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+        Divider(modifier = Modifier.padding(vertical = spacing / 9))  // Adjust the padding as needed
     }
 }
 

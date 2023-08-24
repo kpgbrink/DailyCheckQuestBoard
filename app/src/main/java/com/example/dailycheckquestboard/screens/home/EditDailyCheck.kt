@@ -1,16 +1,15 @@
 package com.example.dailycheckquestboard.screens.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -34,8 +33,14 @@ fun EditDailyCheck(
     spacing: Dp,
     paddingCol: Dp,
     height: Dp,
+    backgroundColor: Color,
     modifier: Modifier
 ) {
+    val checkboxWorkColor = MaterialTheme.colorScheme.primary
+    val checkboxPhysicalColor = MaterialTheme.colorScheme.secondary
+    val checkboxSocialColor =
+        MaterialTheme.colorScheme.error // using error as it's typically red in default themes
+
     val work = dailyCheck?.work ?: false
     val social = dailyCheck?.social ?: false
     val physical = dailyCheck?.physical ?: false
@@ -45,7 +50,8 @@ fun EditDailyCheck(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(paddingCol),
+            .padding(paddingCol, vertical = 0.dp)
+            .background(backgroundColor),  // Use the passed background color
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
@@ -92,7 +98,7 @@ fun EditDailyCheck(
             },
             colors = CheckboxDefaults.colors(checkedColor = Color.Red),
             modifier = Modifier
-                .padding(0.dp)
+                .padding(0.dp, bottom = 5.dp)
                 .height(height)
         )
     }
@@ -118,6 +124,7 @@ fun EditDailyCheckPreview() {
         spacing = 16.dp,
         paddingCol = 8.dp,
         height = 1.dp,
+        backgroundColor = Color.White,
         modifier = Modifier
     )
 }

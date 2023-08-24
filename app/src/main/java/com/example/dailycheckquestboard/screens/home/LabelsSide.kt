@@ -23,21 +23,28 @@ fun LabelsSide(
 ) {
     Column(
         modifier = modifier
-            .padding(paddingCol),
+            .padding(paddingCol, vertical = 0.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Spacer(modifier = Modifier.height(height))
+        Spacer(
+            modifier = Modifier
+                .height(height)
+                .padding(0.dp)
+        )
 
-
-//        Spacer(modifier = Modifier.height(1.dp))
-
-        Spacer(modifier = Modifier.height(spacing))
+        Spacer(
+            modifier = Modifier
+                .height(spacing / 2)
+                .padding(0.dp)
+        )
 
         Text(
             text = "Work",
             color = Color.Blue,
             fontSize = 14.sp,
-            modifier = Modifier.height(height)
+            modifier = Modifier
+                .height(height)
+                .padding(0.dp)
         )
 
         Spacer(modifier = Modifier.height(spacing))
@@ -46,16 +53,24 @@ fun LabelsSide(
             text = "Physical",
             color = Color.Green,
             fontSize = 11.sp,
-            modifier = Modifier.height(height)
+            modifier = Modifier
+                .height(height)
+                .padding(0.dp)
         )
 
-        Spacer(modifier = Modifier.height(spacing))
+        Spacer(
+            modifier = Modifier
+                .height(spacing)
+                .padding(0.dp)
+        )
 
         Text(
             text = "Social",
             color = Color.Red,
             fontSize = 13.sp,
-            modifier = Modifier.height(height)
+            modifier = Modifier
+                .height(height)
+                .padding(0.dp)
         )
     }
 }
