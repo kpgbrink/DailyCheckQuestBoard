@@ -10,22 +10,41 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import com.example.dailycheckquestboard.DailyCheck
 import com.example.dailycheckquestboard.DailyCheckEvent
 import com.example.dailycheckquestboard.DailyCheckState
 import com.example.dailycheckquestboard.screens.home.EditDailyCheck
 import com.example.dailycheckquestboard.screens.home.LabelsSide
+import com.example.dailycheckquestboard.ui.theme.DailyCheckQuestBoardTheme
+import kotlinx.coroutines.delay
 import java.time.DayOfWeek
+import java.time.Duration
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+
+fun timeUntilNextDay(): Duration {
+    val now = LocalTime.now()
+    val endOfDay = LocalTime.of(23, 59, 59, 999_999_999)
+    return Duration.between(now, endOfDay)
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,8 +61,17 @@ fun HomeScreen(
     val spacing: Dp = 15.dp
     val paddingCol: Dp = 1.dp
     val height: Dp = 20.dp
-    val shadowGrey = Color(0xFFD3D3D3)  // You can adjust the color as needed
 
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val forceUpdate = rememberUpdatedState(Unit)
+
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.addObserver(object : LifecycleObserver {
+            fun onResume() {
+                forceUpdate.value // triggers recomposition
+            }
+        })
+    }
 
     Column(
         modifier = Modifier
@@ -55,7 +83,7 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = paddingCol, vertical = 0.dp)
-                .background(shadowGrey),  // Apply the background modifier
+                .background(MaterialTheme.colorScheme.inverseSurface.copy(alpha = .35f)),  // Apply the background modifier
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -64,7 +92,12 @@ fun HomeScreen(
                 val date = firstDayOfLastWeek.plusDays(i.toLong())
                 val dailyCheck = state.dailyChecks.find { it.localDate == date }
                 // Calculate background color
-                val columnBackground = if (i % 2 == 0) Color.DarkGray else Color.Gray
+                val columnBackground = if (i % 2 == 0)
+                    MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.3f)
+                else
+                    MaterialTheme.colorScheme.background.copy(alpha = 0.3f)
+
+
                 EditDailyCheck(
                     date = date,
                     dailyCheck = dailyCheck,
@@ -93,14 +126,15 @@ fun HomeScreen(
             // Loop through the days of the week starting from Monday
             for (i in 1..7) {
                 val dayOfWeek = DayOfWeek.of(i)
-                val currentDayDate = firstDayOfWeek.plusDays((i-1).toLong())  // derive the date for the current dayOfWeek
+                val currentDayDate =
+                    firstDayOfWeek.plusDays((i - 1).toLong())  // derive the date for the current dayOfWeek
                 val today = LocalDate.now()
 
                 // Calculate background color
                 val columnBackground = when {
-                    currentDayDate == today -> Color.Yellow  // Change this to the desired color for "today"
-                    i % 2 == 1 -> Color.LightGray
-                    else -> Color.White
+                    currentDayDate == today -> MaterialTheme.colorScheme.primary
+                    i % 2 == 1 -> MaterialTheme.colorScheme.secondaryContainer
+                    else -> MaterialTheme.colorScheme.surface
                 }
 
                 Text(
@@ -128,9 +162,9 @@ fun HomeScreen(
                 val today = LocalDate.now()
                 // Calculate background color
                 val columnBackground = when {
-                    date == today -> Color.Yellow  // Change this to the desired color for "today"
-                    i % 2 == 0 -> Color.LightGray
-                    else -> Color.White
+                    date == today -> MaterialTheme.colorScheme.primary  // Change this to the desired color for "today"
+                    i % 2 == 0 -> MaterialTheme.colorScheme.secondaryContainer
+                    else -> MaterialTheme.colorScheme.surface
                 }
                 // If it is today make it a certain background color
 
@@ -172,5 +206,7 @@ fun HomeScreenPreview() {
             )
         ),
     )
-    HomeScreen(state, {})
+    DailyCheckQuestBoardTheme  {
+        HomeScreen(state, {})
+    }
 }

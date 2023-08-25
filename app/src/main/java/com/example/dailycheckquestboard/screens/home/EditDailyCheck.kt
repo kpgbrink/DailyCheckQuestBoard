@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,6 +21,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.dailycheckquestboard.DailyCheck
 import com.example.dailycheckquestboard.DailyCheckEvent
+import com.example.dailycheckquestboard.ui.theme.DailyCheckQuestBoardTheme
+import com.example.dailycheckquestboard.ui.theme.LocalExtendedColorScheme
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -36,10 +37,10 @@ fun EditDailyCheck(
     backgroundColor: Color,
     modifier: Modifier
 ) {
-    val checkboxWorkColor = MaterialTheme.colorScheme.primary
-    val checkboxPhysicalColor = MaterialTheme.colorScheme.secondary
-    val checkboxSocialColor =
-        MaterialTheme.colorScheme.error // using error as it's typically red in default themes
+    val extendedColors = LocalExtendedColorScheme.current
+    val checkboxWorkColor = extendedColors.checkboxWork
+    val checkboxPhysicalColor = extendedColors.checkboxPhysical
+    val checkboxSocialColor = extendedColors.checkboxSocial
 
     val work = dailyCheck?.work ?: false
     val social = dailyCheck?.social ?: false
@@ -50,7 +51,7 @@ fun EditDailyCheck(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(paddingCol, vertical = 0.dp)
+           // .padding(paddingCol, vertical = 0.dp)
             .background(backgroundColor),  // Use the passed background color
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -69,7 +70,7 @@ fun EditDailyCheck(
             onCheckedChange = { checked ->
                 onEvent(DailyCheckEvent.UpsertWork(date, checked))
             },
-            colors = CheckboxDefaults.colors(checkedColor = Color.Blue),
+            colors = CheckboxDefaults.colors(checkedColor = checkboxWorkColor),
             modifier = Modifier
                 .padding(0.dp)
                 .height(height)
@@ -83,7 +84,7 @@ fun EditDailyCheck(
             onCheckedChange = { checked ->
                 onEvent(DailyCheckEvent.UpsertPhysical(date, checked))
             },
-            colors = CheckboxDefaults.colors(checkedColor = Color.Green),
+            colors = CheckboxDefaults.colors(checkedColor = checkboxPhysicalColor),
             modifier = Modifier
                 .padding(0.dp)
                 .height(height)
@@ -96,7 +97,7 @@ fun EditDailyCheck(
             onCheckedChange = { checked ->
                 onEvent(DailyCheckEvent.UpsertSocial(date, checked))
             },
-            colors = CheckboxDefaults.colors(checkedColor = Color.Red),
+            colors = CheckboxDefaults.colors(checkedColor = checkboxSocialColor),
             modifier = Modifier
                 .padding(0.dp, bottom = 5.dp)
                 .height(height)
@@ -116,15 +117,16 @@ fun EditDailyCheckPreview() {
     )
 
     val dummyOnEvent: (DailyCheckEvent) -> Unit = {}
-
-    EditDailyCheck(
-        date = LocalDate.now(),
-        dailyCheck = dummyDailyCheck,
-        onEvent = dummyOnEvent,
-        spacing = 16.dp,
-        paddingCol = 8.dp,
-        height = 1.dp,
-        backgroundColor = Color.White,
-        modifier = Modifier
-    )
+    DailyCheckQuestBoardTheme {
+        EditDailyCheck(
+            date = LocalDate.now(),
+            dailyCheck = dummyDailyCheck,
+            onEvent = dummyOnEvent,
+            spacing = 16.dp,
+            paddingCol = 8.dp,
+            height = 1.dp,
+            backgroundColor = Color.White,
+            modifier = Modifier
+        )
+    }
 }
