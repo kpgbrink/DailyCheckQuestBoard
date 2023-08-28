@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,8 +15,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,20 +23,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
 import com.example.dailycheckquestboard.DailyCheck
 import com.example.dailycheckquestboard.DailyCheckEvent
 import com.example.dailycheckquestboard.DailyCheckState
+import com.example.dailycheckquestboard.screens.home.DisplayTodayAndYesterday
 import com.example.dailycheckquestboard.screens.home.EditDailyCheck
 import com.example.dailycheckquestboard.screens.home.LabelsSide
 import com.example.dailycheckquestboard.ui.theme.DailyCheckQuestBoardTheme
-import kotlinx.coroutines.delay
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 
 fun timeUntilNextDay(): Duration {
@@ -181,6 +177,11 @@ fun HomeScreen(
             }
         }
         Divider(modifier = Modifier.padding(vertical = spacing / 9))  // Adjust the padding as needed
+        // Occupy all the available space to push the following content to the bottom
+        Spacer(modifier = Modifier.weight(1f))
+
+        // Display Today and Yesterday at the bottom
+        DisplayTodayAndYesterday(state, currentDate, onEvent, spacing, paddingCol, height)
     }
 }
 
@@ -206,7 +207,7 @@ fun HomeScreenPreview() {
             )
         ),
     )
-    DailyCheckQuestBoardTheme  {
+    DailyCheckQuestBoardTheme {
         HomeScreen(state, {})
     }
 }
